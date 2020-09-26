@@ -919,6 +919,7 @@ GameObject:
   - component: {fileID: 548555735}
   - component: {fileID: 548555734}
   - component: {fileID: 548555740}
+  - component: {fileID: 548555741}
   m_Layer: 5
   m_Name: Dynamic Adjustment Condition Canvas
   m_TagString: Untagged
@@ -1114,6 +1115,20 @@ MonoBehaviour:
     bronzeBadge: 0
     silverBadge: 0
     goldBadge: 0
+    dynamicAddition: 0
+--- !u!114 &548555741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 548555730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cbdcd556973b434f8d1e3c21479b8ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  counter: 0
 --- !u!1 &636217150
 GameObject:
   m_ObjectHideFlags: 0

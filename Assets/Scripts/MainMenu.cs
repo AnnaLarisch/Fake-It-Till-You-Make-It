@@ -31,7 +31,7 @@ public class MainMenu : MonoBehaviour
 
     public void LoadDynamicAdjustmentCondition()
     {
-        SceneManager.LoadScene(7);
+        SceneManager.LoadScene(3);
     }
 
     public void LoadExperimentFinish()

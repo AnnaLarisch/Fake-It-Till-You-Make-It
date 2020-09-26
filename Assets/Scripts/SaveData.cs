@@ -20,11 +20,12 @@ public class SaveData : MonoBehaviour
     public static int bronzeBadge;
     public static int silverBadge;
     public static int goldBadge;
+    public static float dynamicAddition;
 
     public void SaveIntoJson()
     {
 
-        _UserData.SetData(userID, condition, difficulty, age, gender, genderStr, distanceTravelled, bronzeAchieved, silverAchieved, goldAchieved, bronzeBadge, silverBadge, goldBadge);
+        _UserData.SetData(userID, condition, difficulty, age, gender, genderStr, distanceTravelled, bronzeAchieved, silverAchieved, goldAchieved, bronzeBadge, silverBadge, goldBadge, dynamicAddition);
         string user = JsonUtility.ToJson(_UserData);
 
 
@@ -48,8 +49,9 @@ public class UserData
     public int bronzeBadge;
     public int silverBadge;
     public int goldBadge;
+    public float dynamicAddition;
 
-    public void SetData(int userID, int condition, int difficulty, int age, int gender, string genderStr, string distanceTravelled, bool bronzeAchieved, bool silverAchieved, bool goldAchieved, int bronzeBadge, int silverBadge, int goldBadge)
+    public void SetData(int userID, int condition, int difficulty, int age, int gender, string genderStr, string distanceTravelled, bool bronzeAchieved, bool silverAchieved, bool goldAchieved, int bronzeBadge, int silverBadge, int goldBadge, float dynamicAddition)
     {
         this.userID = userID;
         this.condition = condition;
@@ -64,6 +66,7 @@ public class UserData
         this.bronzeBadge = bronzeBadge;
         this.silverBadge = silverBadge;
         this.goldBadge = goldBadge;
+        this.dynamicAddition = dynamicAddition;
     }
 
 }

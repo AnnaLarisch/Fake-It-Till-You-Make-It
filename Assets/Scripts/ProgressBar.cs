@@ -17,19 +17,18 @@ public class ProgressBar : FillBar
     public Text silverBadgeGoal;
     public Text goldBadgeGoal;
 
-    public Image bronzeBadgeLocked;
-    public Image silverBadgeLocked;
-    public Image goldBadgeLocked;
+    public GameObject bronzeBadgeSpriteMask;
+    public GameObject silverBadgeSpriteMask;
+    public GameObject goldBadgeSpriteMask;
 
-    public Image bronzeBadgeUnlocked;
-    public Image silverBadgeUnlocked;
-    public Image goldBadgeUnlocked;
 
     private bool finish;
 
     private float predictedDistance;
     private float speed;
     private float dynamicAddition;
+    private float prozentualProgress;
+    private float sumDynamicAddition;
 
     private float maxValueSlider;
 
@@ -44,6 +43,10 @@ public class ProgressBar : FillBar
     private float bronzeBadgeAchievement;
     private float silverBadgeAchievement;
     private float goldBadgeAchievement;
+
+    private float bronzeBadgeSpriteSteps;
+    private float silverBadgeSpriteSteps;
+    private float goldBadgeSpriteSteps;
 
     public new float CurrentValue
     {
@@ -91,12 +94,7 @@ public class ProgressBar : FillBar
         endScreenButton.SetActive(true);
         endScreenButton.gameObject.transform.Translate(10000f, 10000f, 0f, 0);
 
-        bronzeBadgeLocked.enabled = false;
-        silverBadgeLocked.enabled = false;
-        goldBadgeLocked.enabled = false;
-        bronzeBadgeUnlocked.enabled = false;
-        silverBadgeUnlocked.enabled = false;
-        goldBadgeUnlocked.enabled = false;
+     
 
         if (onProgressComplete == null)
             onProgressComplete = new UnityEvent();
@@ -127,28 +125,55 @@ public class ProgressBar : FillBar
             //speed = 0.003333f;
             // Bronze Badge Speed, Male, 20, 2200m: 11 km/h, 0.003055f;
 
-            speed = 0.003155f;
+            //speed = 0.003255f;
 
+            speed = ReceiveSerialSkript.speed / 1000f;
 
             CurrentValue += (speed + dynamicAddition);
 
-            Debug.Log(dynamicAddition);
+            sumDynamicAddition += dynamicAddition;
+
+
+            if (!bronzeAchieved)
+            {
+                bronzeBadgeSpriteSteps = (73.0f / bronzeBadgeValue) * ((speed + dynamicAddition) * 1000f) * 0.038545f;
+                bronzeBadgeSpriteMask.gameObject.transform.Translate(bronzeBadgeSpriteSteps, 0f, 0f);
+            }
+            if (bronzeAchieved == true && silverAchieved == false)
+            {
+                silverBadgeSpriteSteps = (73.0f / (silverBadgeValue - bronzeBadgeValue)) * ((speed + dynamicAddition) * 1000f) * 0.038545f;
+                silverBadgeSpriteMask.gameObject.transform.Translate(silverBadgeSpriteSteps, 0f, 0f);
+            }
+            if (silverAchieved == true && goldAchieved == false)
+            {
+                goldBadgeSpriteSteps = (73.0f / (goldBadgeValue - silverBadgeValue)) * ((speed + dynamicAddition) * 1000f) * 0.038545f;
+                goldBadgeSpriteMask.gameObject.transform.Translate(goldBadgeSpriteSteps, 0f, 0f);
+
+            }
+
 
             if (CooperResults.condition == 3)
             {
                 predictedDistance = CurrentValue + TimerScript.timeRemaining * speed;
-                if (predictedDistance < bronzeBadgeAchievement)
+                if (predictedDistance - sumDynamicAddition < bronzeBadgeAchievement)
                 {
-                    dynamicAddition = ((bronzeBadgeAchievement + 0.001f) - predictedDistance) / TimerScript.timeRemaining;
+                    prozentualProgress = (predictedDistance - sumDynamicAddition) / bronzeBadgeAchievement;
+                    prozentualProgress = (silverBadgeAchievement - bronzeBadgeAchievement) * prozentualProgress; 
+                    dynamicAddition = ((bronzeBadgeAchievement + 0.001f + prozentualProgress) - predictedDistance) / TimerScript.timeRemaining;
                 }
-                if (predictedDistance >= (bronzeBadgeAchievement + 0.005f) && predictedDistance < silverBadgeAchievement)
+                else if (predictedDistance - sumDynamicAddition >= (bronzeBadgeAchievement + 0.005f) && predictedDistance < silverBadgeAchievement)
                 {
-                    dynamicAddition = ((silverBadgeAchievement + 0.001f) - predictedDistance) / TimerScript.timeRemaining;
+                    prozentualProgress = (predictedDistance - sumDynamicAddition) / silverBadgeAchievement;
+                    prozentualProgress = (goldBadgeAchievement - silverBadgeAchievement) * prozentualProgress;
+                    dynamicAddition = ((silverBadgeAchievement + 0.001f + prozentualProgress) - predictedDistance) / TimerScript.timeRemaining;
                 }
-                if (predictedDistance >= (silverBadgeAchievement + 0.005f) && predictedDistance < goldBadgeAchievement)
+                else if (predictedDistance - sumDynamicAddition >= (silverBadgeAchievement + 0.005f) && predictedDistance < goldBadgeAchievement)
                 {
-                    dynamicAddition = ((goldBadgeAchievement + 0.001f) - predictedDistance) / TimerScript.timeRemaining;
+                    prozentualProgress = predictedDistance - silverBadgeAchievement;
+                    dynamicAddition = ((goldBadgeAchievement + 0.001f + prozentualProgress) - predictedDistance) / TimerScript.timeRemaining;
                 }
+                Debug.Log(dynamicAddition);
+
 
             }
 
@@ -169,10 +194,7 @@ public class ProgressBar : FillBar
 
     public void StartProgress()
     {
-        bronzeBadgeLocked.enabled = true;
-        silverBadgeLocked.enabled = true;
-        goldBadgeLocked.enabled = true;
-
+      
         InvokeRepeating("SecUpdate", 0, 1.0f);
     }
 
@@ -180,22 +202,19 @@ public class ProgressBar : FillBar
     {
         if (CurrentValue >= bronzeBadgeAchievement && (!bronzeAchieved))
         {
-            bronzeBadgeLocked.enabled = false;
-            bronzeBadgeUnlocked.enabled = true;
+          
             bronzeAchieved = true;
             Debug.Log("Bronze");
         }
-        if (CurrentValue >= silverBadgeAchievement && (!silverAchieved))
+        else if (CurrentValue >= silverBadgeAchievement && (!silverAchieved))
         {
-            silverBadgeLocked.enabled = false;
-            silverBadgeUnlocked.enabled = true;
+           
             silverAchieved = true;
             Debug.Log("Silver");
         }
-        if (CurrentValue >= goldBadgeAchievement && (!goldAchieved))
+        else if (CurrentValue >= goldBadgeAchievement && (!goldAchieved))
         {
-            goldBadgeLocked.enabled = false;
-            goldBadgeUnlocked.enabled = true;
+          
             goldAchieved = true;
             Debug.Log("Gold");
         }
@@ -205,30 +224,12 @@ public class ProgressBar : FillBar
     {
 
 
-        bronzeBadgeLocked.enabled = false;
-        silverBadgeLocked.enabled = false;
-        goldBadgeLocked.enabled = false;
-        bronzeBadgeUnlocked.enabled = false;
-        silverBadgeUnlocked.enabled = false;
-        goldBadgeUnlocked.enabled = false;
-
 
         displayText.gameObject.SendMessageUpwards("moveDisplay", SendMessageOptions.DontRequireReceiver);
         endScreenButton.gameObject.transform.Translate(-10000f, -10000f, 0f, 0);
 
-        endScreenTxt.text = "Congratulations!";
-        if (bronzeAchieved && !silverAchieved)
-        {
-            endScreenTxt.text += "\n You achieved the bronze badge!\nPress to continue!";
-        }
-        else if (silverAchieved && !goldAchieved)
-        {
-            endScreenTxt.text += "\n You achieved the silver badge!\nPress to continue!";
-        }
-        else if (goldAchieved)
-        {
-            endScreenTxt.text += "\n You achieved the gold badge!\nPress to continue!";
-        }
+        endScreenTxt.text = "Congratulations!\nPress to continue!";
+        
 
     }
 
@@ -247,5 +248,6 @@ public class ProgressBar : FillBar
         SaveData.bronzeBadge = CooperResults.bronzeBadge;
         SaveData.silverBadge = CooperResults.silverBadge;
         SaveData.goldBadge = CooperResults.goldBadge;
+        SaveData.dynamicAddition = sumDynamicAddition;
     }
 }
